@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Blob</title>
+</head>
+<body>
+    <input type="file" id="123" />
+    <script>
+      let i = document.querySelector('input');
+      i.addEventListener('change', function(e){
+        // 这样获取的是 File 对象 基于Blob 
+        // 前面文档也说了。Blob 只有FileReader 才能读取
+        // 图片缩略图
+        let  img = new Image();
+        // img.src = window.URL.createObjectURL(this.files[0])
+        // img.onload = function () {
+        //   window.URL.revokeObjectURL(this.src);
+        // }
+        // document.body.appendChild(img)
+        var  fr1 = new FileReader();
+        fr1.onload = function () {
+          img.src = this.result
+        };
+        document.body.appendChild(img)
+        fr1.readAsDataURL(this.files[0]);
+        // 进行下载
+        var link = document.createElement('a');
+        link.href = window.URL.createObjectURL(this.files[0]);
+        link.download = 'wj';
+        // document.body.appendChild(link);
+        link.click()
+        window.URL.revokeObjectURL(link.href);
+        // 把内容直接下载
+        var debug = {hello: "world"};
+        var blob = new Blob([JSON.stringify(debug)], {type : 'application/json'});
+        var link1 = document.createElement('a');
+        link1.href = window.URL.createObjectURL(blob);
+        link1.download = 'wj1';
+        // document.body.appendChild(link);
+        link1.click()
+        window.URL.revokeObjectURL(link1.href);
+
+      })
+    </script>
+  </script>
+</body>
+</html>

@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+</head>
+<body>
+  <script>
+
+// hasOwnProperty() 方法会返回一个布尔值，指示对象自身属性中是否具有指定的属性（也就是，是否有指定的键）。
+// 所有继承了 Object 的对象都会继承到 hasOwnProperty 方法。这个方法可以用来检测一个对象是否含有特定的自身属性；和 in 运算符不同，
+// 该方法会忽略掉那些从原型链上继承到的属性。
+// hasOwnProperty 原型链上得属性 不会被复制，hasOwnProperty 为false
+
+function deepclone (obj) {
+  if (!obj) {
+    return obj
+  }
+  let copy = obj instanceof Array ? [] : {}
+  for (let i in obj) {
+    if (obj.hasOwnProperty(i)) {
+      copy[i] = typeof obj[i] === 'object' ? deepclone(obj[i]) : obj[i]
+    }
+  }
+  return copy
+}
+  </script>
+</body>
+</html>

@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <script src="https://cdn.jsdelivr.net/npm/vue"></script>
+  <style>
+      .base-pop {
+        position: absolute;
+        border: 1px solid red;
+        border-radius: 4px;
+        padding: 1px 2px;
+        font-size: 12px;
+        height: 16px;
+    line-height: 16px;
+}
+      }
+  </style>
+</head>
+<body>
+    <div id="app">
+      <input type="button" value="展示全部"  style="position: fixed; left: 10px; top: 20px;" @click="showAll"/>
+      <div id="wangjing" style="width: 1000px;margin: 0 auto;line-height: 40px;    position: relative;
+      z-index: 99;" v-html="htmStr" @mouseup="handleMouse" @mousedown="clearAll">
+      </div>
+    </div>
+    <script>
+      	var range = ''
+	//高亮
+	function highlight(colour) {
+	    if (window.getSelection) {
+	        // IE9 and non-IE
+	        try {
+	            if (!document.execCommand("BackColor", false, 'red')) {
+	                makeEditableAndHighlight(colour);
+	            }
+	        } catch (ex) {
+	            makeEditableAndHighlight(colour)
+	        }
+	    } else if (document.selection && document.selection.createRange) {
+	        // IE <= 8 case
+	        range = document.selection.createRange();
+	        range.execCommand("BackColor", false, 'red');
+	    }
+	    
+  }
+  	//设置高亮色
+	function makeEditableAndHighlight(colour) {
+	    let sel = window.getSelection();
+	    // if (sel.rangeCount && sel.getRangeAt) {
+	    //     range = sel.getRangeAt(0);
+	    // }
+	    document.designMode = "on";
+	    if (range) {
+	    	//removeAllRanges 存在性能问题，耗时较长
+	        sel.removeAllRanges();
+	        sel.addRange(range);
+	    }
+	    // Use HiliteColor since some browsers apply BackColor to the whole block
+	    if (!document.execCommand("HiliteColor", false, colour)) {
+	        document.execCommand("BackColor", true, colour);
+	    }
+	    document.designMode = "off";
+	    if(sel){
+
+		    sel.removeAllRanges();
+	    }
+	}
+      new Vue({
+        el: '#app',
+        data () {
+          return {
+            objTop: {},
+            htmStr: '',
+            htmStrBase: '合肥，简称“庐”或“合”，古称庐州、庐阳、合淝 ，是安徽省省会，国务院批复确定的中国长三角城市群副中心城市，国家重要的科研教育基地、现代制造业基地和综合交通枢纽。截至2019年，全市下辖4个区、4个县、代管1个县级市，总面积11445.1平方千米，户籍人口770.44万人，常住人口818.9万人，常住人口城镇化率76.33%。\n合肥地处中国华东地区、江淮之间、环抱巢湖 ，是长三角城市群副中心 ，综合性国家科学中心，“一带一路”和长江经济带战略双节点城市 ，合肥都市圈中心城市  ，皖江城市带核心城市  ，G60科创走廊中心城市。'
+          }
+        },
+        methods: {
+          handleMouse () {
+            highlight('red')
+            setTimeout(() => {
+              if (!document.querySelector('span[style]')) {
+                return
+              }
+              console.log(document.querySelector('span[style]'))
+              let pSpan = [].slice.call(document.querySelectorAll('span[style]'))
+              if (pSpan && pSpan.length) {
+                let start = [].slice.call(pSpan[0].childNodes);
+                let sid = start[0].getAttribute('id')
+                let end = [].slice.call(pSpan[pSpan.length - 1].childNodes);
+                let eid = end[end.length - 1].getAttribute('id')
+              // let x = [].slice.call(document.querySelector('span[style]').childNodes);
+              // let length = x.length;
+              // console.log(x[0].getAttribute('id'))
+              // console.log(x[length-1].getAttribute('id'))
+              var temp = localStorage.getItem('xx') || [];
+              if (temp && temp.length) {
+                temp = JSON.parse(temp);
+              }
+              temp.push({
+                s: sid,
+                e: eid,
+              })
+              localStorage.setItem('xx', JSON.stringify(temp))
+            }
+            //   [].slice.call(document.querySelector('span[style]').childNodes).forEach((item) => {
+            //     console.log(item)
+            // })
+            }, 500)
+          },
+          clearAll () {
+            [].slice.call(document.querySelectorAll('span[style]')).forEach((item) => {
+              item.removeAttribute("style")
+              // document.createTextNode(item.innerHTML)
+              // item.replaceChild(document.createTextNode("Water"), item)
+              // item.css.backgroundColor = ''
+            });
+            [].slice.call(document.querySelectorAll('.base-background')).forEach((item) => {
+              item.removeAttribute("style")
+              item.className = ''
+              // document.createTextNode(item.innerHTML)
+              // item.replaceChild(document.createTextNode("Water"), item)
+              // item.css.backgroundColor = ''
+            });
+            [].slice.call(document.querySelectorAll('.base-cover')).forEach((item) => {
+              item.parentNode.removeChild(item)
+              // document.createTextNode(item.innerHTML)
+              // item.replaceChild(document.createTextNode("Water"), item)
+              // item.css.backgroundColor = ''
+            });
+            
+          },
+          showAll () {
+            this.clearAll()
+            this.objTop = {}
+            var temp = localStorage.getItem('xx') || [];
+            if (temp && temp.length) {
+              temp = JSON.parse(temp);
+              let prevObj = {}
+              for (let obj of temp) {
+                // 处理交叉
+                let id  = obj.s
+                let x = document.getElementById(id)
+                // console.log(x, document.getElementById(id).offsetTop)
+                var y = document.createElement('div');
+                y.className = 'base-pop base-cover'
+                y.textContent = `我是${id}标签`
+                y.setAttribute('id', 's-'+obj.s)
+                // y.style.visibility = 'hidden'
+                let top = x.offsetTop
+                let left = x.offsetLeft
+                // 判断是不是在同一层
+                if (top === prevObj.top) {
+                  // 判断 left 是不是跟 前一个的 left + labelWidth 重叠
+                  let preWidth = prevObj.left + prevObj.labelWidth
+                  left = left > preWidth ? left : (preWidth + 8)
+                }
+                y.style.left = left + 'px'
+                y.style.top= (top - 21)+ 'px'
+                //自己处理选中颜色
+                let {s, e} = obj
+                s = parseInt(s)
+                e = parseInt(e)
+                let color = 'blue'
+                if (s <= prevObj.e) {
+                  color = 'rgba(228, 35, 35, 0.3)'
+                  y.style.borderColor = color
+                }
+                for (let i =s; i <= e; i++) {
+                    // document.getElementById(i).style.backgroundColor = 'blue'
+                    let every = document.getElementById(i)
+                    var xxx = document.createElement('div');
+                    xxx.style.left = every.offsetLeft + 'px'
+                    xxx.style.position = 'absolute'
+                    xxx.className='base-cover'
+                    xxx.style.top = every.offsetTop + 'px'
+                    xxx.style.width  = every.offsetWidth + 'px'
+                    xxx.style.height = every.offsetHeight + 'px'
+                    xxx.style.backgroundColor = color
+                    xxx.style.zIndex = -1
+                    document.getElementById('wangjing').appendChild(xxx)
+                  }
+                // } else {
+                //   for (let i =s; i <= e; i++) {
+                //     document.getElementById(i).className = 'base-background'
+                //     document.getElementById(i).style.backgroundColor = 'blue'
+                //   }
+                // }
+                document.getElementById('wangjing').appendChild(y)
+                //  console.log(document.querySelector('s-71'), 's-'+obj.s)
+                // 展示
+                // range = document.createRange();
+                // var startDom = document.getElementById(id);
+                // range.setStartBefore(startDom);
+                // range.setEndAfter(document.getElementById(obj.e));
+                // highlight('red')
+                prevObj = {
+                  e: parseInt(obj.e || 0),
+                  left: left,
+                  top: top,
+                  labelWidth: document.getElementById('s-'+obj.s).offsetWidth
+                }
+                console.log(prevObj)
+              }
+              range= ''
+            }
+            // this.$nextTick(() => {
+            //   [].slice.call(document.querySelectorAll('.base-pop')).forEach((item) => {
+            //     let {ps,pe,cs,ce,id, pid} = this.objTop[item.id]
+            //     if (ps > 0) {
+            //       // 前一个的结束位置，大于当前的起始位置，需要处理
+            //       if (pe >= cs) {
+            //         let pidObj = document.getElementById(pid)
+            //         console.log((parseInt(pidObj.style.left) + pidObj.offsetWidth), parseInt(item.style.left))
+            //         let leftTemp = parseInt(item.style.left) > (parseInt(pidObj.style.left) + pidObj.offsetWidth) ? item.style.left:(parseInt(pidObj.style.left) + pidObj.offsetWidth) + 6
+            //         item.style.left = leftTemp + 'px'
+            //       }
+            //     }
+            //     item.style.visibility = 'visible'
+            //   });
+            // })
+          }
+        },
+        created() {
+          let texts = this.htmStrBase.replace(/\r\n/g, "\n").split("\n");
+          let temp = []
+          let j = 0;
+          this.htmStr = texts.map(p => {
+            let length = p.length;
+            let xx = []
+                        for (let i = 0; i < length;  i++) {
+                          xx.push(`<w id='${j}'>${p[i]}</w>`);
+                          j++
+                        }
+                        return "<p>" + xx.join('') + "</p>"
+                    }).join("");
+        },
+        mounted () {
+          // range = document.createRange();
+          // var startDom = document.getElementById("9");
+          // range.setStartBefore(startDom);
+          // range.setEndAfter(document.getElementById("10"));
+          // highlight('red')
+          // this.showAll('9')
+
+          // range = document.createRange();
+          // var startDom = document.getElementById("19");
+          // range.setStartBefore(startDom);
+          // range.setEndAfter(document.getElementById("30"));
+          // highlight('red')
+          // this.showAll('19')
+          // range= ''
+        }
+      })
+    </script>
+</body>
+</html>
